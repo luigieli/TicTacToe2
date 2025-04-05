@@ -1,15 +1,10 @@
 import "./styles/App.css";
+import Board from "./pages/Board"
 
 function App() {
   return (
     <>
-      <div className="main">
-        <div className="main-text">
-          <span className="tic-toe">tic.</span>
-          <span className="tac">tac.</span>
-          <span className="tic-toe">toe.</span>
-        </div>
-      </div>
+      <Board></Board>
     </>
   );
 }
