@@ -1,0 +1,19 @@
+.layoutBorder {
+    position: absolute;
+    background-color: #72CFF9;
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 100vh;
+    height: 20vh;
+    transform: rotate(171deg);
+  }
+  
+  .borderBottom {
+    right: -40%;
+    bottom: -20.5%;
+  }
+  
+  .borderTop {
+    left: -40%;
+    top: -18.5%;
+  }
