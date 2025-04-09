@@ -17,6 +17,7 @@
   gap: 2vh;
   place-items: center;
   justify-content: center;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: repeat(3, minmax(0, 12vh));
+  grid-template-rows: repeat(3, 10vh);
   overflow: hidden;
 }
