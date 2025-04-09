@@ -16,7 +16,7 @@
   }
   
   .mainText span {
-    font-size: calc(0.3 * 100vh / 3);
+    font-size: calc(0.3 * 90vh / 3);
   }
   
   .ticToe {

@@ -1,0 +1,7 @@
+.score {
+    display: flex;
+    justify-content: center;
+    gap: 5%;
+    margin: 0;
+    padding: 0;
+  }

@@ -1,0 +1,21 @@
+.mainBoard {
+    align-self: center;
+    z-index: 2;
+    background-color: #2B0040;
+    flex: 0 0 70%;
+    width: min(90%, 60vh);
+    height: 60%;
+    margin: auto 5%;
+    border-radius: var(--main-border-radius);
+  }
+
+.board {
+  align-self: center;
+  display: grid;
+  max-width: 90%;
+  margin: 7% auto;
+  place-items: center;
+  justify-content: center;
+  gap: 5%;
+  grid-template-columns: repeat(3, 12vh);
+}
