@@ -1,16 +1,15 @@
 .layoutBorder {
     position: absolute;
     background-color: #72CFF9;
-    width: 100vw;
+    width: 70vw;
     height: 20vh;
-    max-width: 900px;
-    min-width: 700px;
+    min-width: 670px;
     transform: rotate(171deg);
   }
   
   .borderBottom {
     right: -40%;
-    bottom: -20.5%;
+    bottom: -20%;
   }
   
   .borderTop {

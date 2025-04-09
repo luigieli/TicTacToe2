@@ -12,10 +12,11 @@
 .board {
   align-self: center;
   display: grid;
+  margin: 10% auto;
   max-width: 90%;
-  margin: 7% auto;
+  gap: 2vh;
   place-items: center;
   justify-content: center;
-  gap: 5%;
-  grid-template-columns: repeat(3, 12vh);
+  grid-template-columns: repeat(3, auto);
+  overflow: hidden;
 }
