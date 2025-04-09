@@ -41,8 +41,6 @@ const Game: React.FC = () => {
     setCurrentPLayer(currentPlayer === "X" ? "O" : "X");
   };
 
-  // 
-
   return (
     <div className={styles.main}>
       <GameBoard squares={board} onSquareClick={handleCellClick}/>
