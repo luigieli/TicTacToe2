@@ -7,14 +7,14 @@
     justify-content: center;
     background-color: yellow;
     border-radius: var(--main-border-radius);
-    width: clamp(20px, 15vw, 155px);
-    height: clamp(10px, 14vh, 139px);
+    width: 12vh;
+    height: 11vh;
     margin-top: 5vh;
 }
 
 .textScore {
     font-family: 'Fredoka', sans-serif;
-    font-size: clamp(0.3dvh, 2.3dvh, 2.3rem);
+    font-size: clamp(0.3dvh, 1.9dvh, 2.3rem);
 }
 
 .textScoreNumber {

@@ -23,19 +23,13 @@
 
 @media (orientation: portrait) {
   .main {
-    width: 65vw;
+    width: 65vh;
   }
 }
 
-@media (max-width: 1920px) and (orientation: landscape) {
+@media (orientation: landscape) {
   .main {
-    width: 65vw;
+    width: 65vh;
     max-width: 700px;
-  }
-}
-
-@media (min-width: 1921px) and (orientation: landscape) {
-  .main {
-    width: 700px;
   }
 }
