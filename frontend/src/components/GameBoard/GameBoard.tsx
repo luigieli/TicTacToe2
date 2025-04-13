@@ -1,6 +1,7 @@
 import styles from "./GameBoard.module.css";
 import Square from "../Square/Square";
 import ScoreBoard from "../ScoreBoard/ScoreBoard";
+import NewGameButton from "../NewGameButton/NewGameButton";
 
 type BoardProps = {
   squares: (string | null)[];
@@ -24,6 +25,7 @@ const GameBoard: React.FC<BoardProps> = ({
 }) => {
   return (
     <div className={styles.mainBoard}>
+      <NewGameButton />
       <ScoreBoard scores={scores} />
       <div className={styles.board}>
         {squares.map((square: string | null, i: number) => (

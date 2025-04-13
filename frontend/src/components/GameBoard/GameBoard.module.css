@@ -1,17 +1,19 @@
 .mainBoard {
-    align-self: center;
-    z-index: 2;
-    background-color: #2B0040;
-    flex: 0 0 70%;
-    width: min(90%, 60vh);
-    height: 60%;
-    margin: auto 5%;
-    border-radius: var(--main-border-radius);
-  }
+  z-index: 2;
+  position: relative;
+  align-self: center;
+  background-color: #2b0040;
+  flex: 0 0 70%;
+  width: min(90%, 60vh);
+  height: 60%;
+  margin: auto 5%;
+  border-radius: var(--main-border-radius);
+}
 
 .board {
   align-self: center;
   display: grid;
+  padding: 1vh;
   margin: 10% auto;
   max-width: 90%;
   gap: 2vh;
