@@ -1,7 +1,7 @@
 import styles from "./Game.module.css";
 import GameBoard from "../../components/GameBoard/GameBoard";
 import Title from "../../components/Title/Title";
-import LayoutBorder from "../../components/LayoutBorder/LayoutBorder";
+import LayoutBorder from "../../components/FrameBorder/FrameBorder";
 import calculateWinner from "../../utils/CalculateWinner";
 import { useState } from "react";
 
@@ -15,7 +15,7 @@ const Game: React.FC = () => {
     playerX: 0,
     ties: 0,
     playerO: 0,
-  })
+  });
 
   const handleCellClick = (index: number) => {
     if (board[index] || calculateWinner(board)) return;
@@ -25,7 +25,7 @@ const Game: React.FC = () => {
     setBoard(newBoard);
     setCurrentPLayer(currentPlayer === "X" ? "O" : "X");
   };
-  
+
   return (
     <div className={styles.main}>
       <GameBoard

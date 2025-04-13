@@ -13,11 +13,11 @@
 
 .textScore {
     font-family: 'Fredoka', sans-serif;
-    font-size: clamp(0.3dvh, 1.4dvh, 2.3rem);
+    font-size: clamp(0.3vh, 1.4vh, 2.3rem);
 }
 
 .textScoreNumber {
     font-family: cursive;
     font-weight: bold;
-    font-size: clamp(1rem, 3dvh, 3rem);
+    font-size: clamp(1vh, 3vh, 3rem);
 }
