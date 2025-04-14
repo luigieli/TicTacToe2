@@ -1,21 +1,18 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import styles from "./NewGameButton.module.css";
 
 const NewGameButton: React.FC = () => {
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  
-  const onClick = () => {
-    if(buttonRef.current && buttonRef.current.parentElement) {
-      const divParent = buttonRef.current.parentElement as HTMLDivElement;
-      divParent.style.display="none"
-    }
-  }
-  
-  return (
+  const [isVisible, setIsVisible] = useState(true);
+
+  const onClick = () => setIsVisible(false);
+
+  return isVisible ? (
     <div className={styles.divBlur}>
-      <button ref={buttonRef} className={styles.newGameButton} onClick={onClick}>Novo Jogo</button>
+      <button className={styles.newGameButton} onClick={onClick}>
+        Novo Jogo
+      </button>
     </div>
-  );
+  ) : null;
 };
 
 export default NewGameButton;
