@@ -4,13 +4,14 @@ import Title from "../../components/Title/Title";
 import LayoutBorder from "../../components/FrameBorder/FrameBorder";
 import calculateWinner from "../../utils/CalculateWinner";
 import { useState } from "react";
+import { PLAYERS } from "../../constants";
 
 type Player = "X" | "O" | null;
 type Board = Player[];
 
 const Game: React.FC = () => {
   const [board, setBoard] = useState<Board>(Array(9).fill(null));
-  const [currentPlayer, setCurrentPLayer] = useState<"X" | "O">("X");
+  const [currentPlayer, setCurrentPLayer] = useState<"X" | "O">(PLAYERS.X);
   const [scores, setScore] = useState({
     playerX: 0,
     ties: 0,
@@ -23,7 +24,7 @@ const Game: React.FC = () => {
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
-    setCurrentPLayer(currentPlayer === "X" ? "O" : "X");
+    setCurrentPLayer(currentPlayer === PLAYERS.X ? PLAYERS.O : PLAYERS.X);
   };
 
   return (

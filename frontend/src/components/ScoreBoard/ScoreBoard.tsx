@@ -1,5 +1,6 @@
 import styles from "./ScoreBoard.module.css";
 import Score from "../Score/Score";
+import { STRINGS, COLORS } from "../../constants";
 
 type ScoreBoardProps = {
   scores: {
@@ -13,15 +14,15 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({ scores }) => {
   return (
     <div className={styles.score}>
       <Score
-        player={"JOGADOR X"}
+        player={STRINGS.PLAYER_X}
         score={scores.playerX}
-        backgroundColor="#48D2FE"
+        backgroundColor={COLORS.PLAYER_X}
       />
-      <Score player={"EMPATE"} score={scores.ties} backgroundColor="#BCDBF9" />
+      <Score player={STRINGS.TIE} score={scores.ties} backgroundColor="#BCDBF9" />
       <Score
-        player={"JOGADOR O"}
+        player={STRINGS.PLAYER_O}
         score={scores.playerO}
-        backgroundColor="#E2BE00"
+        backgroundColor={COLORS.PLAYER_O}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import ScoreBoard from "../ScoreBoard/ScoreBoard";
 import NewGameButton from "../NewGameButton/NewGameButton";
 
 type BoardProps = {
-  squares: (string | null)[];
+  squares: ("X" | "O" | null)[];
   onSquareClick: (index: number) => void;
   scores: {
     playerX: number;
@@ -28,7 +28,7 @@ const GameBoard: React.FC<BoardProps> = ({
       <NewGameButton />
       <ScoreBoard scores={scores} />
       <div className={styles.board}>
-        {squares.map((square: string | null, i: number) => (
+        {squares.map((square: "X" | "O" | null, i: number) => (
           <Square
             key={i}
             value={square}

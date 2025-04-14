@@ -1,5 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import styles from "./NewGameButton.module.css";
+import { STRINGS } from "../../constants";
 
 const NewGameButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -9,7 +10,7 @@ const NewGameButton: React.FC = () => {
   return isVisible ? (
     <div className={styles.divBlur}>
       <button className={styles.newGameButton} onClick={onClick}>
-        Novo Jogo
+        {STRINGS.NEW_GAME}
       </button>
     </div>
   ) : null;
