@@ -5,6 +5,7 @@ import NewGameButton from "../NewGameButton/NewGameButton";
 
 type BoardProps = {
   squares: ("X" | "O" | null)[];
+  colors: string[]; // Nova prop para as cores
   onSquareClick: (index: number) => void;
   scores: {
     playerX: number;
@@ -13,13 +14,9 @@ type BoardProps = {
   };
 };
 
-function textPlayerColor(player: string | null) {
-  if (player == null) return "";
-  return player === "O" ? "#E2BE00" : "#72CFF9";
-}
-
 const GameBoard: React.FC<BoardProps> = ({
   squares,
+  colors,
   onSquareClick,
   scores,
 }) => {
@@ -33,7 +30,7 @@ const GameBoard: React.FC<BoardProps> = ({
             key={i}
             value={square}
             onClick={() => onSquareClick(i)}
-            color={textPlayerColor(square)}
+            color={colors[i]} // Usa a cor correspondente
           />
         ))}
       </div>
