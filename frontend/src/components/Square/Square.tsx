@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./Square.module.css";
 
 type SquareProps = {
-  value: string | null;
+  value: "X" | "O" | null;
   onClick: () => void;
   color: string;
 };
