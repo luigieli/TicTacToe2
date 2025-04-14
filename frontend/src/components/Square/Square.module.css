@@ -1,6 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap");
+
+:root {
+  --square-bg: #43115B;
+  --square-hover-bg: #5A1E76;
+}
+
 .square {
-    background-color: #43115B;
+    background-color: var(--square-bg);
     border-radius: var(--main-border-radius);
     width: 100%;
     height: 100%;
@@ -10,5 +16,5 @@
     transition: transform 0.3s ease;
 }
 .square:hover {
-    background-color: #5A1E76;
+    background-color: var(--square-hover-bg);
 }

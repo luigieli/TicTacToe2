@@ -1,5 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap");
 
+:root {
+  --button-bg: #C5A0D7;
+  --button-hover-bg: #F4F6F5;
+}
+
 .divBlur{
     z-index: 3;
     position: absolute;
@@ -22,7 +27,7 @@
 .newGameButton {
     border: none;
     border-radius: 10%;
-    background-color: #C5A0D7;
+    background-color: var(--button-bg);
     height: 10%;
     width: 25%;
     font-family: "Fredoka One", cursive;
@@ -31,6 +36,6 @@
 }
 
 .newGameButton:hover {
-    background-color: #F4F6F5;
+    background-color: var(--button-hover-bg);
     transform: scale(1.1);
 }

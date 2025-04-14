@@ -1,7 +1,18 @@
-.score {
-    display: flex;
-    justify-content: center;
-    gap: 2vh;
-    margin: 0 2vh;
-    padding: 0;
+:root {
+  --score-gap: 2vh;
+  --score-margin: 2vh;
+}
+
+.scoreBoard {
+  display: flex;
+  justify-content: center;
+  gap: var(--score-gap);
+  margin: 0 var(--score-margin);
+  padding: 0;
+}
+
+@media (max-width: 600px) {
+  .scoreBoard {
+    gap: 1vh;
   }
+}

@@ -1,8 +1,12 @@
+:root {
+  --main-board-bg: #2b0040;
+}
+
 .mainBoard {
   z-index: 2;
   position: relative;
   align-self: center;
-  background-color: #2b0040;
+  background-color: var(--main-board-bg);
   flex: 0 0 70%;
   width: min(90%, 60vh);
   height: 60%;
@@ -22,4 +26,10 @@
   grid-template-columns: repeat(3, minmax(0, 12vh));
   grid-template-rows: repeat(3, 10vh);
   overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .board {
+    gap: 1vh;
+  }
 }

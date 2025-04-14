@@ -12,7 +12,7 @@ type ScoreBoardProps = {
 
 const ScoreBoard: React.FC<ScoreBoardProps> = ({ scores }) => {
   return (
-    <div className={styles.score}>
+    <div className={styles.scoreBoard}>
       <Score
         player={STRINGS.PLAYER_X}
         score={scores.playerX}
