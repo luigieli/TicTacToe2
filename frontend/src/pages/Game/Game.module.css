@@ -1,0 +1,35 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+  --main-bg: #5a1e76;
+  --main-border-radius: 4%;
+  --main-height: 90vh;
+}
+
+.main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: var(--main-height);
+  background-color: var(--main-bg);
+  border-radius: var(--main-border-radius);
+  overflow: hidden;
+  margin: auto;
+  max-width: 1200px;
+}
+
+@media (orientation: portrait) {
+  .main {
+    width: 65vh;
+  }
+}
+
+@media (orientation: landscape) {
+  .main {
+    width: 65vh;
+    max-width: 700px;
+  }
+}

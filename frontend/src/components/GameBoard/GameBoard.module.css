@@ -1,0 +1,25 @@
+.mainBoard {
+  z-index: 2;
+  position: relative;
+  align-self: center;
+  background-color: #2b0040;
+  flex: 0 0 70%;
+  width: min(90%, 60vh);
+  height: 60%;
+  margin: auto 5%;
+  border-radius: var(--main-border-radius);
+}
+
+.board {
+  align-self: center;
+  display: grid;
+  padding: 1vh;
+  margin: 10% auto;
+  max-width: 90%;
+  gap: 2vh;
+  place-items: center;
+  justify-content: center;
+  grid-template-columns: repeat(3, minmax(0, 12vh));
+  grid-template-rows: repeat(3, 10vh);
+  overflow: hidden;
+}
