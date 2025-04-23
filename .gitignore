@@ -1,0 +1,36 @@
+# Node dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Vite cache
+.vite/
+
+# Tooling caches
+.cache/
+*.tsbuildinfo
+
+# ESLint cache
+.eslintcache
+
+# Prettier log files
+prettier.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
