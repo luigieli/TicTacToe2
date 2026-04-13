@@ -84,6 +84,29 @@ func (h *TicTacToe2Handler) MakeMove(w http.ResponseWriter, r *http.Request) {
 	h.respondWithJSON(w, http.StatusOK, game)
 }
 
+// RequestBotMove handles the POST /game/{id}/bot-move request.
+func (h *TicTacToe2Handler) RequestBotMove(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		h.respondWithError(w, http.StatusBadRequest, "game id is required")
+		return
+	}
+
+	game, err := h.service.RequestBotMove(r.Context(), id)
+	if err != nil {
+		status := http.StatusInternalServerError
+		if errors.Is(err, models.ErrGameOver) {
+			status = http.StatusBadRequest
+		} else if errors.Is(err, models.ErrGameNotFound) {
+			status = http.StatusNotFound
+		}
+		h.respondWithError(w, status, err.Error())
+		return
+	}
+
+	h.respondWithJSON(w, http.StatusOK, game)
+}
+
 func (h *TicTacToe2Handler) respondWithError(w http.ResponseWriter, code int, message string) {
 	h.respondWithJSON(w, code, map[string]string{"error": message})
 }

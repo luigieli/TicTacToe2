@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"tictactoe/internal/domain/dto"
 	"tictactoe/internal/domain/models"
 	"tictactoe/internal/ports"
 )
@@ -20,7 +19,7 @@ func NewStandardGameHandler(service ports.StandardGameService) *StandardGameHand
 	return &StandardGameHandler{service: service}
 }
 
-// CreateGame handles the POST / request.
+// CreateGame handles the POST /standard request.
 func (h *StandardGameHandler) CreateGame(w http.ResponseWriter, r *http.Request) {
 	gameID, err := h.service.CreateGame(r.Context())
 	if err != nil {
@@ -28,10 +27,10 @@ func (h *StandardGameHandler) CreateGame(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	h.respondWithJSON(w, http.StatusCreated, dto.CreateGameResponse{GameID: gameID})
+	h.respondWithJSON(w, http.StatusCreated, map[string]string{"game_id": gameID})
 }
 
-// GetGameState handles the GET /{id} request.
+// GetGameState handles the GET /standard/{id} request.
 func (h *StandardGameHandler) GetGameState(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
@@ -52,7 +51,7 @@ func (h *StandardGameHandler) GetGameState(w http.ResponseWriter, r *http.Reques
 	h.respondWithJSON(w, http.StatusOK, game)
 }
 
-// MakeMove handles the POST /{id}/move request.
+// MakeMove handles the POST /standard/{id}/move request.
 func (h *StandardGameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
@@ -60,7 +59,9 @@ func (h *StandardGameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req dto.StandardMoveRequest
+	var req struct {
+		CellIdx int `json:"cell_idx"`
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.respondWithError(w, http.StatusBadRequest, "invalid request body")
 		return
@@ -71,6 +72,29 @@ func (h *StandardGameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 		status := http.StatusInternalServerError
 		if errors.Is(err, models.ErrInvalidMove) || errors.Is(err, models.ErrGameOver) ||
 			errors.Is(err, models.ErrCellAlreadyTaken) {
+			status = http.StatusBadRequest
+		} else if errors.Is(err, models.ErrGameNotFound) {
+			status = http.StatusNotFound
+		}
+		h.respondWithError(w, status, err.Error())
+		return
+	}
+
+	h.respondWithJSON(w, http.StatusOK, game)
+}
+
+// RequestBotMove handles the POST /standard/{id}/bot-move request.
+func (h *StandardGameHandler) RequestBotMove(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		h.respondWithError(w, http.StatusBadRequest, "game id is required")
+		return
+	}
+
+	game, err := h.service.RequestBotMove(r.Context(), id)
+	if err != nil {
+		status := http.StatusInternalServerError
+		if errors.Is(err, models.ErrGameOver) {
 			status = http.StatusBadRequest
 		} else if errors.Is(err, models.ErrGameNotFound) {
 			status = http.StatusNotFound
