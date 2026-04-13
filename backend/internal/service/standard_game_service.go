@@ -9,11 +9,15 @@ import (
 
 type standardGameService struct {
 	repo ports.StandardGameRepository
+	ai   ports.AIService
 }
 
 // NewStandardGameService creates a new instance of the standard game service.
-func NewStandardGameService(repo ports.StandardGameRepository) ports.StandardGameService {
-	return &standardGameService{repo: repo}
+func NewStandardGameService(repo ports.StandardGameRepository, ai ports.AIService) ports.StandardGameService {
+	return &standardGameService{
+		repo: repo,
+		ai:   ai,
+	}
 }
 
 // CreateGame initializes a new 3x3 Tic-Tac-Toe session.
@@ -78,4 +82,23 @@ func (s *standardGameService) MakeMove(ctx context.Context, id string, cellIdx i
 	}
 
 	return game, nil
+}
+
+// RequestBotMove asks the AI for a move and executes it.
+func (s *standardGameService) RequestBotMove(ctx context.Context, id string) (*models.StandardGame, error) {
+	game, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if game.IsGameOver {
+		return nil, models.ErrGameOver
+	}
+
+	cellIdx, err := s.ai.GetStandardMove(ctx, game)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.MakeMove(ctx, id, cellIdx)
 }

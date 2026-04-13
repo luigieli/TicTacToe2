@@ -11,7 +11,8 @@ import (
 
 func TestStandardGameService(t *testing.T) {
 	repo := repository.NewStandardGameRepository()
-	svc := NewStandardGameService(repo)
+	ai := NewAIService()
+	svc := NewStandardGameService(repo, ai)
 	ctx := context.Background()
 
 	t.Run("CreateGame", func(t *testing.T) {
@@ -43,6 +44,26 @@ func TestStandardGameService(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, models.PlayerO, game.Board[0])
 		assert.Equal(t, models.PlayerX, game.CurrentPlayer)
+	})
+
+	t.Run("RequestBotMove", func(t *testing.T) {
+		id, _ := svc.CreateGame(ctx)
+		// X moves
+		svc.MakeMove(ctx, id, 4)
+
+		// Request Bot Move (O's turn)
+		game, err := svc.RequestBotMove(ctx, id)
+		assert.NoError(t, err)
+		assert.Equal(t, models.PlayerX, game.CurrentPlayer) // Should be back to X
+		
+		// Verify one more cell is filled (by O)
+		filledCount := 0
+		for _, cell := range game.Board {
+			if cell != models.Empty {
+				filledCount++
+			}
+		}
+		assert.Equal(t, 2, filledCount)
 	})
 
 	t.Run("InvalidMoves", func(t *testing.T) {

@@ -11,11 +11,15 @@ import (
 
 type gameService struct {
 	repo ports.GameRepository
+	ai   ports.AIService
 }
 
 // NewGameService creates a new instance of the game service.
-func NewGameService(repo ports.GameRepository) ports.GameService {
-	return &gameService{repo: repo}
+func NewGameService(repo ports.GameRepository, ai ports.AIService) ports.GameService {
+	return &gameService{
+		repo: repo,
+		ai:   ai,
+	}
 }
 
 // CreateGame initializes a new Ultimate Tic Tac Toe session.
@@ -115,4 +119,27 @@ func (s *gameService) MakeMove(ctx context.Context, req dto.MoveRequest) (*model
 	}
 
 	return game, nil
+}
+
+// RequestBotMove asks the AI for a move and executes it.
+func (s *gameService) RequestBotMove(ctx context.Context, id string) (*models.Game, error) {
+	game, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if game.IsGameOver {
+		return nil, models.ErrGameOver
+	}
+
+	boardIdx, cellIdx, err := s.ai.GetUltimateMove(ctx, game)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.MakeMove(ctx, dto.MoveRequest{
+		GameID:   id,
+		BoardIdx: boardIdx,
+		CellIdx:  cellIdx,
+	})
 }

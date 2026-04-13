@@ -13,10 +13,6 @@ type mockRepo struct {
 	games map[string]*models.Game
 }
 
-func newMockRepo() *mockRepo {
-	return &mockRepo{games: make(map[string]*models.Game)}
-}
-
 func (m *mockRepo) Save(ctx context.Context, game *models.Game) error {
 	m.games[game.ID] = game
 	return nil
@@ -30,9 +26,14 @@ func (m *mockRepo) FindByID(ctx context.Context, id string) (*models.Game, error
 	return game, nil
 }
 
+func newMockRepo() *mockRepo {
+	return &mockRepo{games: make(map[string]*models.Game)}
+}
+
 func TestCreateGame(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	gameID, err := svc.CreateGame(context.Background())
 	if err != nil {
@@ -59,7 +60,8 @@ func TestCreateGame(t *testing.T) {
 
 func TestMakeMove(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	gameID, _ := svc.CreateGame(context.Background())
 
@@ -90,7 +92,8 @@ func TestMakeMove(t *testing.T) {
 
 func TestGetGameState(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	gameID, _ := svc.CreateGame(context.Background())
 
@@ -106,7 +109,8 @@ func TestGetGameState(t *testing.T) {
 
 func TestGetGameState_NotFound(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	_, err := svc.GetGameState(context.Background(), "nonexistent")
 	if err != models.ErrGameNotFound {
@@ -116,7 +120,8 @@ func TestGetGameState_NotFound(t *testing.T) {
 
 func TestMakeMove_InvalidCellIndex(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	gameID, _ := svc.CreateGame(context.Background())
 
@@ -134,7 +139,8 @@ func TestMakeMove_InvalidCellIndex(t *testing.T) {
 
 func TestMakeMove_InvalidBoardIndex(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	gameID, _ := svc.CreateGame(context.Background())
 
@@ -152,7 +158,8 @@ func TestMakeMove_InvalidBoardIndex(t *testing.T) {
 
 func TestMakeMove_CellAlreadyTaken(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	gameID, _ := svc.CreateGame(context.Background())
 
@@ -185,7 +192,8 @@ func TestMakeMove_CellAlreadyTaken(t *testing.T) {
 
 func TestMakeMove_WrongBoard(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	gameID, _ := svc.CreateGame(context.Background())
 
@@ -211,7 +219,8 @@ func TestMakeMove_WrongBoard(t *testing.T) {
 
 func TestMakeMove_PlayerSwitch(t *testing.T) {
 	repo := newMockRepo()
-	svc := NewGameService(repo)
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
 
 	gameID, _ := svc.CreateGame(context.Background())
 
@@ -240,5 +249,27 @@ func TestMakeMove_PlayerSwitch(t *testing.T) {
 
 	if game.CurrentPlayer != models.PlayerX {
 		t.Errorf("expected current player to be X, got %v", game.CurrentPlayer)
+	}
+}
+
+func TestRequestBotMove(t *testing.T) {
+	repo := newMockRepo()
+	ai := NewAIService()
+	svc := NewGameService(repo, ai)
+
+	gameID, _ := svc.CreateGame(context.Background())
+	
+	// X moves
+	svc.MakeMove(context.Background(), dto.MoveRequest{
+		GameID: gameID,
+		BoardIdx: 0,
+		CellIdx: 4,
+	})
+
+	// Request Bot Move
+	_, err := svc.RequestBotMove(context.Background(), gameID)
+	// Currently it should FAIL because GetUltimateMove is not implemented
+	if err == nil {
+		t.Error("expected error as GetUltimateMove is not implemented, but got nil")
 	}
 }
