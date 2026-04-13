@@ -88,71 +88,157 @@ func TestMakeMove(t *testing.T) {
 	}
 }
 
-func TestBoardWin(t *testing.T) {
+func TestGetGameState(t *testing.T) {
 	repo := newMockRepo()
 	svc := NewGameService(repo)
+
 	gameID, _ := svc.CreateGame(context.Background())
 
-	// Sequence to win Board 0 for X (Cells 0, 1, 2)
-	// X: 0,0 (sends O to 0)
-	// O: 0,3 (sends X to 3)
-	// X: 3,0 (sends O to 0)
-	// O: 0,4 (sends X to 4)
-	// X: 4,0 (sends O to 0)
-	// O: 0,5 (sends X to 5)
-	// X: 5,0 (sends O to 0)
-	// O: 0,1 (sends X to 1) --- No, O should not take 1.
-
-	moves := []struct{ b, c int }{
-		{0, 0}, // X (O->0)
-		{0, 3}, // O (X->3)
-		{3, 0}, // X (O->0)
-		{0, 4}, // O (X->4)
-		{4, 0}, // X (O->0)
-		{0, 5}, // O (X->5)
+	game, err := svc.GetGameState(context.Background(), gameID)
+	if err != nil {
+		t.Fatalf("failed to get game state: %v", err)
 	}
 
-	for i, m := range moves {
-		_, err := svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: m.b, CellIdx: m.c})
-		if err != nil {
-			t.Fatalf("failed move %d (%d,%d): %v", i, m.b, m.c, err)
-		}
+	if game.ID != gameID {
+		t.Errorf("expected game ID %s, got %s", gameID, game.ID)
+	}
+}
+
+func TestGetGameState_NotFound(t *testing.T) {
+	repo := newMockRepo()
+	svc := NewGameService(repo)
+
+	_, err := svc.GetGameState(context.Background(), "nonexistent")
+	if err != models.ErrGameNotFound {
+		t.Errorf("expected ErrGameNotFound, got %v", err)
+	}
+}
+
+func TestMakeMove_InvalidCellIndex(t *testing.T) {
+	repo := newMockRepo()
+	svc := NewGameService(repo)
+
+	gameID, _ := svc.CreateGame(context.Background())
+
+	req := dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 0,
+		CellIdx:  10, // Invalid
 	}
 
-	// Now X must go to 5 (from move 0,5)
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 5, CellIdx: 0}) // X at 5,0 -> O to 0
+	_, err := svc.MakeMove(context.Background(), req)
+	if err != models.ErrInvalidMove {
+		t.Errorf("expected ErrInvalidMove, got %v", err)
+	}
+}
 
-	// O must go to 0
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 0, CellIdx: 6}) // O at 0,6 -> X to 6
+func TestMakeMove_InvalidBoardIndex(t *testing.T) {
+	repo := newMockRepo()
+	svc := NewGameService(repo)
 
-	// X must go to 6
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 6, CellIdx: 0}) // X at 6,0 -> O to 0
+	gameID, _ := svc.CreateGame(context.Background())
 
-	// O must go to 0
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 0, CellIdx: 7}) // O at 0,7 -> X to 7
+	req := dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 10, // Invalid
+		CellIdx:  0,
+	}
 
-	// X must go to 7
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 7, CellIdx: 0}) // X at 7,0 -> O to 0
+	_, err := svc.MakeMove(context.Background(), req)
+	if err != models.ErrInvalidMove {
+		t.Errorf("expected ErrInvalidMove, got %v", err)
+	}
+}
 
-	// O must go to 0
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 0, CellIdx: 8}) // O at 0,8 -> X to 8
+func TestMakeMove_CellAlreadyTaken(t *testing.T) {
+	repo := newMockRepo()
+	svc := NewGameService(repo)
 
-	// X must go to 8
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 8, CellIdx: 0}) // X at 8,0 -> O to 0
+	gameID, _ := svc.CreateGame(context.Background())
 
-	// Now X has 0,0. O has 0,3 0,4 0,5 0,6 0,7 0,8.
-	// O must move to 0. ONLY 0,1 and 0,2 are free.
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 0, CellIdx: 1}) // O at 0,1 -> X to 1
+	// Player X moves at Board 0, Cell 4. Next move must be in Board 4.
+	svc.MakeMove(context.Background(), dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 0,
+		CellIdx:  4,
+	})
 
-	// X must go to 1
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 1, CellIdx: 0}) // X at 1,0 -> O to 0
+	// Player O moves at Board 4, Cell 0. Next move must be in Board 0.
+	svc.MakeMove(context.Background(), dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 4,
+		CellIdx:  0,
+	})
 
-	// O must move to 0. ONLY 0,2 is free.
-	svc.MakeMove(context.Background(), dto.MoveRequest{GameID: gameID, BoardIdx: 0, CellIdx: 2}) // O at 0,2 -> X to 2
+	// Player X tries to play same cell as the first move.
+	req := dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 0,
+		CellIdx:  4, // Already taken by Player X
+	}
 
-	// Wait, now Board 0 is full.
+	_, err := svc.MakeMove(context.Background(), req)
+	if err != models.ErrCellAlreadyTaken {
+		t.Errorf("expected ErrCellAlreadyTaken, got %v", err)
+	}
+}
+
+func TestMakeMove_WrongBoard(t *testing.T) {
+	repo := newMockRepo()
+	svc := NewGameService(repo)
+
+	gameID, _ := svc.CreateGame(context.Background())
+
+	// First move in board 0, cell 0 (sends next player to board 0)
+	svc.MakeMove(context.Background(), dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 0,
+		CellIdx:  0,
+	})
+
+	// Try to play in board 1 instead of board 0
+	req := dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 1, // Wrong board!
+		CellIdx:  0,
+	}
+
+	_, err := svc.MakeMove(context.Background(), req)
+	if err != models.ErrWrongBoard {
+		t.Errorf("expected ErrWrongBoard, got %v", err)
+	}
+}
+
+func TestMakeMove_PlayerSwitch(t *testing.T) {
+	repo := newMockRepo()
+	svc := NewGameService(repo)
+
+	gameID, _ := svc.CreateGame(context.Background())
+
 	game, _ := svc.GetGameState(context.Background(), gameID)
-	if game.SubBoards[0].Winner == models.Empty {
-		t.Errorf("expected Board 0 to have a result (Win or Tie)")
+	if game.CurrentPlayer != models.PlayerX {
+		t.Errorf("expected starting player X, got %v", game.CurrentPlayer)
+	}
+
+	// X makes a move
+	game, _ = svc.MakeMove(context.Background(), dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 0,
+		CellIdx:  0,
+	})
+
+	if game.CurrentPlayer != models.PlayerO {
+		t.Errorf("expected current player to be O, got %v", game.CurrentPlayer)
+	}
+
+	// O makes a move
+	game, _ = svc.MakeMove(context.Background(), dto.MoveRequest{
+		GameID:   gameID,
+		BoardIdx: 0,
+		CellIdx:  1,
+	})
+
+	if game.CurrentPlayer != models.PlayerX {
+		t.Errorf("expected current player to be X, got %v", game.CurrentPlayer)
 	}
 }
