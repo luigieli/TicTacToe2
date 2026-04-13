@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"tictactoe/internal/domain/dto"
 	"tictactoe/internal/domain/models"
 	"tictactoe/internal/ports"
 )
@@ -21,13 +22,19 @@ func NewStandardGameHandler(service ports.StandardGameService) *StandardGameHand
 
 // CreateGame handles the POST /standard request.
 func (h *StandardGameHandler) CreateGame(w http.ResponseWriter, r *http.Request) {
-	gameID, err := h.service.CreateGame(r.Context())
+	var req dto.CreateGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		// Default to PVP if body is empty or invalid
+		req.Mode = models.ModePVP
+	}
+
+	gameID, err := h.service.CreateGame(r.Context(), req)
 	if err != nil {
 		h.respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	h.respondWithJSON(w, http.StatusCreated, map[string]string{"game_id": gameID})
+	h.respondWithJSON(w, http.StatusCreated, dto.CreateGameResponse{GameID: gameID})
 }
 
 // GetGameState handles the GET /standard/{id} request.
@@ -72,29 +79,6 @@ func (h *StandardGameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 		status := http.StatusInternalServerError
 		if errors.Is(err, models.ErrInvalidMove) || errors.Is(err, models.ErrGameOver) ||
 			errors.Is(err, models.ErrCellAlreadyTaken) {
-			status = http.StatusBadRequest
-		} else if errors.Is(err, models.ErrGameNotFound) {
-			status = http.StatusNotFound
-		}
-		h.respondWithError(w, status, err.Error())
-		return
-	}
-
-	h.respondWithJSON(w, http.StatusOK, game)
-}
-
-// RequestBotMove handles the POST /standard/{id}/bot-move request.
-func (h *StandardGameHandler) RequestBotMove(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	if id == "" {
-		h.respondWithError(w, http.StatusBadRequest, "game id is required")
-		return
-	}
-
-	game, err := h.service.RequestBotMove(r.Context(), id)
-	if err != nil {
-		status := http.StatusInternalServerError
-		if errors.Is(err, models.ErrGameOver) {
 			status = http.StatusBadRequest
 		} else if errors.Is(err, models.ErrGameNotFound) {
 			status = http.StatusNotFound

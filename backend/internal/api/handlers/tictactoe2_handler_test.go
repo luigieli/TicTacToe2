@@ -18,7 +18,7 @@ type mockService struct {
 	game *models.Game
 }
 
-func (m *mockService) CreateGame(ctx context.Context) (string, error) {
+func (m *mockService) CreateGame(ctx context.Context, req dto.CreateGameRequest) (string, error) {
 	return "test-id", nil
 }
 
@@ -37,20 +37,12 @@ func (m *mockService) MakeMove(ctx context.Context, req dto.MoveRequest) (*model
 	return nil, models.ErrGameNotFound
 }
 
-func (m *mockService) RequestBotMove(ctx context.Context, id string) (*models.Game, error) {
-	if id == "test-id" {
-		return m.game, nil
-	}
-	return nil, models.ErrGameNotFound
-}
-
 func setupTestRouter(h *TicTacToe2Handler) *chi.Mux {
 	r := chi.NewRouter()
 	r.Route("/games", func(r chi.Router) {
 		r.Post("/", h.CreateGame)
 		r.Get("/{id}", h.GetGameState)
 		r.Post("/{id}/move", h.MakeMove)
-		r.Post("/{id}/bot-move", h.RequestBotMove)
 	})
 	return r
 }
@@ -89,21 +81,6 @@ func TestMakeMove_REST(t *testing.T) {
 
 	// Note: GameID is now in the URL, not the body (or both)
 	req := httptest.NewRequest(http.MethodPost, "/games/test-id/move", bytes.NewBuffer(body))
-	rr := httptest.NewRecorder()
-
-	router.ServeHTTP(rr, req)
-
-	if rr.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d. Body: %s", rr.Code, rr.Body.String())
-	}
-}
-
-func TestRequestBotMove_REST(t *testing.T) {
-	svc := &mockService{game: &models.Game{ID: "test-id"}}
-	handler := NewTicTacToe2Handler(svc)
-	router := setupTestRouter(handler)
-
-	req := httptest.NewRequest(http.MethodPost, "/games/test-id/bot-move", nil)
 	rr := httptest.NewRecorder()
 
 	router.ServeHTTP(rr, req)

@@ -22,7 +22,12 @@ func NewTicTacToe2Handler(service ports.GameService) *TicTacToe2Handler {
 
 // CreateGame handles the POST /game request.
 func (h *TicTacToe2Handler) CreateGame(w http.ResponseWriter, r *http.Request) {
-	gameID, err := h.service.CreateGame(r.Context())
+	var req dto.CreateGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req.Mode = models.ModePVP
+	}
+
+	gameID, err := h.service.CreateGame(r.Context(), req)
 	if err != nil {
 		h.respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -73,29 +78,6 @@ func (h *TicTacToe2Handler) MakeMove(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, models.ErrInvalidMove) || errors.Is(err, models.ErrWrongBoard) ||
 			errors.Is(err, models.ErrBoardAlreadyWon) || errors.Is(err, models.ErrGameOver) ||
 			errors.Is(err, models.ErrCellAlreadyTaken) {
-			status = http.StatusBadRequest
-		} else if errors.Is(err, models.ErrGameNotFound) {
-			status = http.StatusNotFound
-		}
-		h.respondWithError(w, status, err.Error())
-		return
-	}
-
-	h.respondWithJSON(w, http.StatusOK, game)
-}
-
-// RequestBotMove handles the POST /game/{id}/bot-move request.
-func (h *TicTacToe2Handler) RequestBotMove(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	if id == "" {
-		h.respondWithError(w, http.StatusBadRequest, "game id is required")
-		return
-	}
-
-	game, err := h.service.RequestBotMove(r.Context(), id)
-	if err != nil {
-		status := http.StatusInternalServerError
-		if errors.Is(err, models.ErrGameOver) {
 			status = http.StatusBadRequest
 		} else if errors.Is(err, models.ErrGameNotFound) {
 			status = http.StatusNotFound
