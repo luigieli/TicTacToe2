@@ -3,7 +3,7 @@ import GameBoard from "../../components/GameBoard/GameBoard";
 import Title from "../../components/Title/Title";
 import LayoutBorder from "../../components/FrameBorder/FrameBorder";
 import { useEffect, useState } from "react";
-import { createGame, makeMove, StandardGame } from "../../utils/api";
+import { createStandardGame, makeStandardMove, StandardGame } from "../../utils/api";
 
 const Game: React.FC = () => {
   const [gameID, setGameID] = useState<string | null>(null);
@@ -19,11 +19,12 @@ const Game: React.FC = () => {
   useEffect(() => {
     async function init() {
       try {
-        const id = await createGame();
+        const id = await createStandardGame("PVP"); // Defaulting to PVP until Menu is ready
         setGameID(id);
         // Initial state
         setGameState({
           id: id,
+          mode: "PVP",
           board: Array(9).fill(""),
           current_player: "X",
           winner: "",
@@ -41,7 +42,7 @@ const Game: React.FC = () => {
     if (gameState.is_game_over || gameState.board[index] !== "") return;
 
     try {
-      const updatedState = await makeMove(gameID, index);
+      const updatedState = await makeStandardMove(gameID, index);
       setGameState(updatedState);
       setErrorMessage(null); // Clear errors on success
 

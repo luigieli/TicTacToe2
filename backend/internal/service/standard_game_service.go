@@ -3,22 +3,27 @@ package service
 import (
 	"context"
 
+	"tictactoe/internal/domain/dto"
 	"tictactoe/internal/domain/models"
 	"tictactoe/internal/ports"
 )
 
 type standardGameService struct {
 	repo ports.StandardGameRepository
+	ai   ports.AIService
 }
 
 // NewStandardGameService creates a new instance of the standard game service.
-func NewStandardGameService(repo ports.StandardGameRepository) ports.StandardGameService {
-	return &standardGameService{repo: repo}
+func NewStandardGameService(repo ports.StandardGameRepository, ai ports.AIService) ports.StandardGameService {
+	return &standardGameService{
+		repo: repo,
+		ai:   ai,
+	}
 }
 
 // CreateGame initializes a new 3x3 Tic-Tac-Toe session.
-func (s *standardGameService) CreateGame(ctx context.Context) (string, error) {
-	newGame := models.NewStandardGame()
+func (s *standardGameService) CreateGame(ctx context.Context, req dto.CreateGameRequest) (string, error) {
+	newGame := models.NewStandardGame(req.Mode)
 
 	if err := s.repo.Save(ctx, newGame); err != nil {
 		return "", err
@@ -56,20 +61,22 @@ func (s *standardGameService) MakeMove(ctx context.Context, id string, cellIdx i
 	game.Board[cellIdx] = game.CurrentPlayer
 
 	// Check Winner
-	if winner := models.CalculateWinner(game.Board[:]); winner != models.Empty {
-		game.Winner = winner
-		game.IsGameOver = true
-	} else if models.IsBoardFull(game.Board[:]) {
-		game.Winner = models.Tie
-		game.IsGameOver = true
-	}
+	s.updateWinStatus(game)
 
 	// Switch Player (only if game not over)
 	if !game.IsGameOver {
-		if game.CurrentPlayer == models.PlayerX {
-			game.CurrentPlayer = models.PlayerO
-		} else {
-			game.CurrentPlayer = models.PlayerX
+		s.switchPlayer(game)
+
+		// If PVE mode, bot makes its move immediately
+		if game.Mode == models.ModePVE && !game.IsGameOver {
+			botMove, err := s.ai.GetStandardMove(ctx, game)
+			if err == nil {
+				game.Board[botMove] = game.CurrentPlayer
+				s.updateWinStatus(game)
+				if !game.IsGameOver {
+					s.switchPlayer(game)
+				}
+			}
 		}
 	}
 
@@ -78,4 +85,27 @@ func (s *standardGameService) MakeMove(ctx context.Context, id string, cellIdx i
 	}
 
 	return game, nil
+}
+
+func (s *standardGameService) updateWinStatus(game *models.StandardGame) {
+	if winner := models.CalculateWinner(game.Board[:]); winner != models.Empty {
+		game.Winner = winner
+		game.IsGameOver = true
+	} else if models.IsBoardFull(game.Board[:]) {
+		game.Winner = models.Tie
+		game.IsGameOver = true
+	}
+}
+
+func (s *standardGameService) switchPlayer(game *models.StandardGame) {
+	if game.CurrentPlayer == models.PlayerX {
+		game.CurrentPlayer = models.PlayerO
+	} else {
+		game.CurrentPlayer = models.PlayerX
+	}
+}
+
+// RequestBotMove is now internal and deprecated from public port
+func (s *standardGameService) RequestBotMove(ctx context.Context, id string) (*models.StandardGame, error) {
+	return nil, nil
 }

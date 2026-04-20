@@ -11,17 +11,27 @@ import (
 
 type gameService struct {
 	repo ports.GameRepository
+	ai   ports.AIService
 }
 
 // NewGameService creates a new instance of the game service.
-func NewGameService(repo ports.GameRepository) ports.GameService {
-	return &gameService{repo: repo}
+func NewGameService(repo ports.GameRepository, ai ports.AIService) ports.GameService {
+	return &gameService{
+		repo: repo,
+		ai:   ai,
+	}
 }
 
 // CreateGame initializes a new Ultimate Tic Tac Toe session.
-func (s *gameService) CreateGame(ctx context.Context) (string, error) {
+func (s *gameService) CreateGame(ctx context.Context, req dto.CreateGameRequest) (string, error) {
+	mode := req.Mode
+	if mode == "" {
+		mode = models.ModePVP
+	}
+
 	newGame := &models.Game{
 		ID:            uuid.New().String(),
+		Mode:          mode,
 		CurrentPlayer: models.PlayerX,
 		NextBoardIdx:  -1,
 		IsGameOver:    false,
@@ -75,7 +85,26 @@ func (s *gameService) MakeMove(ctx context.Context, req dto.MoveRequest) (*model
 	}
 
 	// Execute Move
-	targetBoard.Cells[req.CellIdx] = game.CurrentPlayer
+	s.applyMove(game, req.BoardIdx, req.CellIdx)
+
+	// If PVE mode, bot makes its move immediately
+	if game.Mode == models.ModePVE && !game.IsGameOver {
+		bIdx, cIdx, err := s.ai.GetUltimateMove(ctx, game)
+		if err == nil {
+			s.applyMove(game, bIdx, cIdx)
+		}
+	}
+
+	if err := s.repo.Save(ctx, game); err != nil {
+		return nil, err
+	}
+
+	return game, nil
+}
+
+func (s *gameService) applyMove(game *models.Game, boardIdx, cellIdx int) {
+	targetBoard := &game.SubBoards[boardIdx]
+	targetBoard.Cells[cellIdx] = game.CurrentPlayer
 
 	// Check Sub-Board Winner
 	if winner := models.CalculateWinner(targetBoard.Cells[:]); winner != models.Empty {
@@ -98,21 +127,22 @@ func (s *gameService) MakeMove(ctx context.Context, req dto.MoveRequest) (*model
 	}
 
 	// Update Next Move Constraints
-	game.NextBoardIdx = req.CellIdx
+	game.NextBoardIdx = cellIdx
 	if game.SubBoards[game.NextBoardIdx].Winner != models.Empty {
 		game.NextBoardIdx = -1 // Target board is already won, player can go anywhere
 	}
 
-	// Switch Player
-	if game.CurrentPlayer == models.PlayerX {
-		game.CurrentPlayer = models.PlayerO
-	} else {
-		game.CurrentPlayer = models.PlayerX
+	// Switch Player (only if game not over)
+	if !game.IsGameOver {
+		if game.CurrentPlayer == models.PlayerX {
+			game.CurrentPlayer = models.PlayerO
+		} else {
+			game.CurrentPlayer = models.PlayerX
+		}
 	}
+}
 
-	if err := s.repo.Save(ctx, game); err != nil {
-		return nil, err
-	}
-
-	return game, nil
+// RequestBotMove asks the AI for a move and executes it.
+func (s *gameService) RequestBotMove(ctx context.Context, id string) (*models.Game, error) {
+	return nil, nil
 }

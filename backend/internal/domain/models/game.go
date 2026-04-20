@@ -18,9 +18,18 @@ type Board struct {
 	Winner CellState    `json:"winner"`
 }
 
+// GameMode represents the type of opponents in a game.
+type GameMode string
+
+const (
+	ModePVP GameMode = "PVP"
+	ModePVE GameMode = "PVE"
+)
+
 // Game represents the state of an Ultimate Tic Tac Toe game.
 type Game struct {
 	ID            string    `json:"id"`
+	Mode          GameMode  `json:"mode"`
 	SubBoards     [9]Board  `json:"sub_boards"`
 	CurrentPlayer CellState `json:"current_player"`
 	NextBoardIdx  int       `json:"next_board_idx"` // -1 means any board is allowed

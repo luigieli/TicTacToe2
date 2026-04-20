@@ -14,12 +14,14 @@ import (
 
 func main() {
 	// Dependency Injection
+	aiSvc := service.NewAIService()
+
 	tictactoe2Repo := repository.NewGameRepository()
-	tictactoe2Svc := service.NewGameService(tictactoe2Repo)
+	tictactoe2Svc := service.NewGameService(tictactoe2Repo, aiSvc)
 	tictactoe2Handler := handlers.NewTicTacToe2Handler(tictactoe2Svc)
 
 	standardRepo := repository.NewStandardGameRepository()
-	standardSvc := service.NewStandardGameService(standardRepo)
+	standardSvc := service.NewStandardGameService(standardRepo, aiSvc)
 	standardHandler := handlers.NewStandardGameHandler(standardSvc)
 
 	// Router setup

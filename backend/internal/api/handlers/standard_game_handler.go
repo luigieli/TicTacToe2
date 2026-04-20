@@ -20,9 +20,15 @@ func NewStandardGameHandler(service ports.StandardGameService) *StandardGameHand
 	return &StandardGameHandler{service: service}
 }
 
-// CreateGame handles the POST / request.
+// CreateGame handles the POST /standard request.
 func (h *StandardGameHandler) CreateGame(w http.ResponseWriter, r *http.Request) {
-	gameID, err := h.service.CreateGame(r.Context())
+	var req dto.CreateGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		// Default to PVP if body is empty or invalid
+		req.Mode = models.ModePVP
+	}
+
+	gameID, err := h.service.CreateGame(r.Context(), req)
 	if err != nil {
 		h.respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -31,7 +37,7 @@ func (h *StandardGameHandler) CreateGame(w http.ResponseWriter, r *http.Request)
 	h.respondWithJSON(w, http.StatusCreated, dto.CreateGameResponse{GameID: gameID})
 }
 
-// GetGameState handles the GET /{id} request.
+// GetGameState handles the GET /standard/{id} request.
 func (h *StandardGameHandler) GetGameState(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
@@ -52,7 +58,7 @@ func (h *StandardGameHandler) GetGameState(w http.ResponseWriter, r *http.Reques
 	h.respondWithJSON(w, http.StatusOK, game)
 }
 
-// MakeMove handles the POST /{id}/move request.
+// MakeMove handles the POST /standard/{id}/move request.
 func (h *StandardGameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
@@ -60,7 +66,9 @@ func (h *StandardGameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req dto.StandardMoveRequest
+	var req struct {
+		CellIdx int `json:"cell_idx"`
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.respondWithError(w, http.StatusBadRequest, "invalid request body")
 		return
