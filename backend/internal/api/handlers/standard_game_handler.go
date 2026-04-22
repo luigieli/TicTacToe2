@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -22,7 +23,14 @@ func NewStandardGameHandler(service ports.StandardGameService) *StandardGameHand
 
 // CreateGame handles the POST / request.
 func (h *StandardGameHandler) CreateGame(w http.ResponseWriter, r *http.Request) {
-	gameID, err := h.service.CreateGame(r.Context())
+	var req dto.StandardCreateGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("CreateGame: No valid body found, defaulting to PVP. Error: %v", err)
+		req.Mode = string(models.PVP)
+	}
+
+	log.Printf("CreateGame: Initializing game with mode: %s", req.Mode)
+	gameID, err := h.service.CreateGame(r.Context(), req.Mode)
 	if err != nil {
 		h.respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -66,6 +74,7 @@ func (h *StandardGameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("MakeMove: id=%s, cell=%d", id, req.CellIdx)
 	game, err := h.service.MakeMove(r.Context(), id, req.CellIdx)
 	if err != nil {
 		status := http.StatusInternalServerError

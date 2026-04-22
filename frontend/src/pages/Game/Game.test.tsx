@@ -5,8 +5,8 @@ import * as api from '../../utils/api';
 
 // Mock the API
 vi.mock('../../utils/api', () => ({
-  createGame: vi.fn(),
-  makeMove: vi.fn(),
+  createStandardGame: vi.fn(),
+  makeStandardMove: vi.fn(),
 }));
 
 // Mock the components used in Game
@@ -42,7 +42,7 @@ vi.mock('../../components/FrameBorder/FrameBorder', () => ({
 describe('Game Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (api.createGame as any).mockResolvedValue('test-game-id');
+    (api.createStandardGame as any).mockResolvedValue('test-game-id');
   });
 
   it('should render game board with initial state', async () => {
@@ -68,8 +68,9 @@ describe('Game Component', () => {
   });
 
   it('should update board when square is clicked', async () => {
-    (api.makeMove as any).mockResolvedValue({
+    (api.makeStandardMove as any).mockResolvedValue({
       id: 'test-game-id',
+      mode: 'PVP',
       board: ['X', '', '', '', '', '', '', '', ''],
       current_player: 'O',
       winner: '',
@@ -88,9 +89,10 @@ describe('Game Component', () => {
   });
 
   it('should alternate players on each move', async () => {
-    (api.makeMove as any)
+    (api.makeStandardMove as any)
       .mockResolvedValueOnce({
         id: 'test-game-id',
+        mode: 'PVP',
         board: ['X', '', '', '', '', '', '', '', ''],
         current_player: 'O',
         winner: '',
@@ -98,6 +100,7 @@ describe('Game Component', () => {
       })
       .mockResolvedValueOnce({
         id: 'test-game-id',
+        mode: 'PVP',
         board: ['X', 'O', '', '', '', '', '', '', ''],
         current_player: 'X',
         winner: '',
@@ -105,6 +108,7 @@ describe('Game Component', () => {
       })
       .mockResolvedValueOnce({
         id: 'test-game-id',
+        mode: 'PVP',
         board: ['X', 'O', 'X', '', '', '', '', '', ''],
         current_player: 'O',
         winner: '',
@@ -125,8 +129,9 @@ describe('Game Component', () => {
   });
 
   it('should not allow clicking on occupied square', async () => {
-    (api.makeMove as any).mockResolvedValue({
+    (api.makeStandardMove as any).mockResolvedValue({
       id: 'test-game-id',
+      mode: 'PVP',
       board: ['X', '', '', '', '', '', '', '', ''],
       current_player: 'O',
       winner: '',
@@ -143,7 +148,7 @@ describe('Game Component', () => {
 
     // Second click - should not call makeMove again
     fireEvent.click(square0);
-    expect(api.makeMove).toHaveBeenCalledTimes(1);
+    expect(api.makeStandardMove).toHaveBeenCalledTimes(1);
   });
 
   it('should render 9 squares', async () => {
@@ -155,4 +160,3 @@ describe('Game Component', () => {
     });
   });
 });
-

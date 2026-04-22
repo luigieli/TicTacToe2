@@ -1,11 +1,14 @@
 import styles from "./Game.module.css";
 import GameBoard from "../../components/GameBoard/GameBoard";
-import Title from "../../components/Title/Title";
-import LayoutBorder from "../../components/FrameBorder/FrameBorder";
-import { useEffect, useState } from "react";
-import { createGame, makeMove, StandardGame } from "../../utils/api";
+import { useEffect, useState, useCallback } from "react";
+import { createGame, makeMove, StandardGame, GameMode } from "../../utils/api";
 
-const Game: React.FC = () => {
+interface GameProps {
+  mode: GameMode;
+  onBack: () => void;
+}
+
+const Game: React.FC<GameProps> = ({ mode, onBack }) => {
   const [gameID, setGameID] = useState<string | null>(null);
   const [gameState, setGameState] = useState<StandardGame | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -15,26 +18,27 @@ const Game: React.FC = () => {
     playerO: 0,
   });
 
-  // Initialize game session on mount.
-  useEffect(() => {
-    async function init() {
-      try {
-        const id = await createGame();
-        setGameID(id);
-        // Initial state
-        setGameState({
-          id: id,
-          board: Array(9).fill(""),
-          current_player: "X",
-          winner: "",
-          is_game_over: false,
-        });
-      } catch (err: any) {
-        setErrorMessage("Could not initialize game: " + err.message);
-      }
+  const initGame = useCallback(async () => {
+    try {
+      const id = await createGame(mode);
+      setGameID(id);
+      setGameState({
+        id: id,
+        mode: mode,
+        board: Array(9).fill(""),
+        current_player: "X",
+        winner: "",
+        is_game_over: false,
+      });
+      setErrorMessage(null);
+    } catch (err: any) {
+      setErrorMessage("Could not initialize game: " + err.message);
     }
-    init();
-  }, []);
+  }, [mode]);
+
+  useEffect(() => {
+    initGame();
+  }, [initGame]);
 
   const handleCellClick = async (index: number) => {
     if (!gameID || !gameState) return;
@@ -43,7 +47,7 @@ const Game: React.FC = () => {
     try {
       const updatedState = await makeMove(gameID, index);
       setGameState(updatedState);
-      setErrorMessage(null); // Clear errors on success
+      setErrorMessage(null);
 
       if (updatedState.is_game_over) {
         updateScores(updatedState.winner);
@@ -58,12 +62,15 @@ const Game: React.FC = () => {
       setScore((prev) => ({ ...prev, playerX: prev.playerX + 1 }));
     } else if (winner === "O") {
       setScore((prev) => ({ ...prev, playerO: prev.playerO + 1 }));
-    } else if (winner === "Z") { // backend Tie is "Z"
+    } else if (winner === "Z") {
       setScore((prev) => ({ ...prev, ties: prev.ties + 1 }));
     }
   };
 
-  // Convert string[] from backend to Player[] for GameBoard
+  const handleRestart = () => {
+    initGame();
+  };
+
   const boardCells = gameState?.board.map(cell => {
     if (cell === "X") return "X";
     if (cell === "O") return "O";
@@ -71,16 +78,32 @@ const Game: React.FC = () => {
   }) || Array(9).fill(null);
 
   return (
-    <div className={styles.main}>
-      <GameBoard
-        scores={scores}
-        squares={boardCells}
-        onSquareClick={handleCellClick}
-      />
-      <Title />
-      <LayoutBorder />
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <button className={styles.backButton} onClick={onBack}>
+          <span>←</span> Menu
+        </button>
+      </header>
+
+      <main className={styles.gameCard}>
+        <GameBoard
+          scores={scores}
+          squares={boardCells}
+          onSquareClick={handleCellClick}
+          winner={gameState?.winner || ""}
+          isGameOver={gameState?.is_game_over || false}
+          isPVE={mode.startsWith("PVE")}
+        />
+        
+        <div className={styles.controls}>
+          <button className={styles.actionButton} onClick={handleRestart}>
+            Reiniciar Partida
+          </button>
+        </div>
+      </main>
+
       {errorMessage && (
-        <div style={{ color: "red", position: "absolute", bottom: "20px" }}>
+        <div className={styles.error}>
           {errorMessage}
         </div>
       )}

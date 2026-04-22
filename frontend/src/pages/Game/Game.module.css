@@ -1,35 +1,104 @@
-* {
-  padding: 0;
-  margin: 0;
-}
-
-:root {
-  --main-bg: #5a1e76;
-  --main-border-radius: 4%;
-  --main-height: 90vh;
-}
-
-.main {
-  position: relative;
+.container {
   display: flex;
   flex-direction: column;
-  height: var(--main-height);
-  background-color: var(--main-bg);
-  border-radius: var(--main-border-radius);
-  overflow: hidden;
-  margin: auto;
-  max-width: 1200px;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: clamp(1rem, 5vw, 2rem);
+  box-sizing: border-box;
+  animation: fadeIn 0.6s ease-out;
 }
 
-@media (orientation: portrait) {
-  .main {
-    width: 65vh;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-@media (orientation: landscape) {
-  .main {
-    width: 65vh;
-    max-width: 700px;
-  }
+.header {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.backButton {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.75rem 1.25rem;
+  border-radius: 1rem;
+  font-family: 'Fredoka One', cursive;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: #72cff9;
+}
+
+.gameCard {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2.5rem;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.actionButton {
+  flex: 1;
+  background: rgba(114, 207, 249, 0.1);
+  border: 1px solid rgba(114, 207, 249, 0.2);
+  color: #72cff9;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.actionButton:hover {
+  background: rgba(114, 207, 249, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(114, 207, 249, 0.15);
+}
+
+.error {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }

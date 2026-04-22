@@ -15,6 +15,16 @@ type StandardMoveRequest struct {
 	CellIdx int    `json:"cell_idx"` // 0-8
 }
 
+// CreateGameRequest defines the payload for creating any type of game.
+type CreateGameRequest struct {
+	Mode string `json:"mode"`
+}
+
+// StandardCreateGameRequest is an alias or alternative for specific standard creation if needed.
+type StandardCreateGameRequest struct {
+	Mode string `json:"mode"`
+}
+
 // CreateGameResponse is returned when a new game is started.
 type CreateGameResponse struct {
 	GameID string `json:"game_id"`

@@ -22,7 +22,12 @@ func NewTicTacToe2Handler(service ports.GameService) *TicTacToe2Handler {
 
 // CreateGame handles the POST /game request.
 func (h *TicTacToe2Handler) CreateGame(w http.ResponseWriter, r *http.Request) {
-	gameID, err := h.service.CreateGame(r.Context())
+	var req dto.CreateGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req.Mode = models.ModePVP
+	}
+
+	gameID, err := h.service.CreateGame(r.Context(), req)
 	if err != nil {
 		h.respondWithError(w, http.StatusInternalServerError, err.Error())
 		return

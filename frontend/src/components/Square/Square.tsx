@@ -1,18 +1,18 @@
-import React from "react";
 import styles from "./Square.module.css";
 
 type SquareProps = {
   value: string | null;
   onClick: () => void;
-  color: string;
 };
 
-const Square: React.FC<SquareProps> = React.memo(({ value, onClick, color}) => {
+const Square: React.FC<SquareProps> = ({ value, onClick }) => {
+  const valueClass = value === "X" ? styles.x : value === "O" ? styles.o : "";
+
   return (
-    <button className={styles.square} onClick={onClick} style={{color}}>
+    <button className={`${styles.square} ${valueClass}`} onClick={onClick}>
       {value}
     </button>
   );
-});
+};
 
 export default Square;

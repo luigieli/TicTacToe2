@@ -1,7 +1,7 @@
-.score {
-    display: flex;
-    justify-content: center;
-    gap: 2vh;
-    margin: 0 2vh;
-    padding: 0;
-  }
+.scoreBoard {
+  display: flex;
+  justify-content: space-between;
+  gap: clamp(0.5rem, 2vw, 1.5rem);
+  width: 100%;
+  margin-bottom: 0.5rem;
+}

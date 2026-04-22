@@ -1,4 +1,4 @@
-import styles from "./ScoreBoard.module.css"
+import styles from "./ScoreBoard.module.css";
 import Score from "../Score/Score";
 
 type ScoreBoardProps = {
@@ -7,14 +7,17 @@ type ScoreBoardProps = {
     ties: number;
     playerO: number;
   };
+  isPVE?: boolean;
 };
 
-export default function ScoreBoard({scores}:ScoreBoardProps) {
+const ScoreBoard: React.FC<ScoreBoardProps> = ({ scores, isPVE }) => {
   return (
-    <div className={styles.score}>
-      <Score player={"JOGADOR X"} score={scores.playerX} backgroundColor="#48D2FE"/>
-      <Score player={"EMPATE"} score={scores.ties} backgroundColor="#BCDBF9"/>
-      <Score player={"JOGADOR O"} score={scores.playerO} backgroundColor="#E2BE00"/>
+    <div className={styles.scoreBoard}>
+      <Score label="X (P1)" value={scores.playerX} type="playerX" />
+      <Score label="TIES" value={scores.ties} type="ties" />
+      <Score label={isPVE ? "O (CPU)" : "O (P2)"} value={scores.playerO} type="playerO" />
     </div>
   );
-}
+};
+
+export default ScoreBoard;

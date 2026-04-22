@@ -15,7 +15,7 @@ type GameService interface {
 
 // StandardGameService defines the business operations for a standard 3x3 game.
 type StandardGameService interface {
-	CreateGame(ctx context.Context) (string, error)
+	CreateGame(ctx context.Context, mode string) (string, error)
 	GetGameState(ctx context.Context, id string) (*models.StandardGame, error)
 	MakeMove(ctx context.Context, id string, cellIdx int) (*models.StandardGame, error)
 }

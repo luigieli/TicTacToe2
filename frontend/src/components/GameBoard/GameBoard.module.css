@@ -1,25 +1,82 @@
 .mainBoard {
-  z-index: 2;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.boardContainer {
   position: relative;
-  align-self: center;
-  background-color: #2b0040;
-  flex: 0 0 70%;
-  width: min(90%, 60vh);
-  height: 60%;
-  margin: auto 5%;
-  border-radius: var(--main-border-radius);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .board {
-  align-self: center;
   display: grid;
-  padding: 1vh;
-  margin: 10% auto;
-  max-width: 90%;
-  gap: 2vh;
-  place-items: center;
-  justify-content: center;
-  grid-template-columns: repeat(3, minmax(0, 12vh));
-  grid-template-rows: repeat(3, 10vh);
-  overflow: hidden;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: clamp(0.5rem, 2vw, 1rem);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  transition: filter 0.5s ease, opacity 0.5s ease;
 }
+
+.gameOver .board {
+  filter: blur(4px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.winnerCard {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2rem;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 90%;
+}
+
+.winnerLabel {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+}
+
+.winnerTitle {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.xColor { color: #72cff9; text-shadow: 0 0 15px rgba(114, 207, 249, 0.4); }
+.oColor { color: #dcbf3f; text-shadow: 0 0 15px rgba(220, 191, 63, 0.4); }
+.tieColor { color: white; text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }

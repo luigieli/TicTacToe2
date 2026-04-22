@@ -18,7 +18,7 @@ type mockService struct {
 	game *models.Game
 }
 
-func (m *mockService) CreateGame(ctx context.Context) (string, error) {
+func (m *mockService) CreateGame(ctx context.Context, req dto.CreateGameRequest) (string, error) {
 	return "test-id", nil
 }
 
